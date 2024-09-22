@@ -1,49 +1,38 @@
-import { useState, useEffect } from "react";
 import System from "@/models/system";
+import { useState, useEffect } from "react";
 
-export default function ElevenLabsOptions({ settings }) {
-  const [inputValue, setInputValue] = useState(settings?.TTSElevenLabsKey);
-  const [elevenLabsKey, setElevenLabsKey] = useState(
-    settings?.TTSElevenLabsKey
-  );
-
+export default function FireworksAiOptions({ settings }) {
   return (
-    <div className="flex gap-x-4">
+    <div className="flex gap-[36px] mt-1.5">
       <div className="flex flex-col w-60">
         <label className="text-white text-sm font-semibold block mb-3">
-          API Key
+          Fireworks AI API Key
         </label>
         <input
           type="password"
-          name="TTSElevenLabsKey"
-          className="bg-zinc-900 text-white placeholder:text-white/20 text-sm rounded-lg focus:outline-primary-button active:outline-primary-button outline-none block w-full p-2.5"
-          placeholder="ElevenLabs API Key"
-          defaultValue={settings?.TTSElevenLabsKey ? "*".repeat(20) : ""}
+          name="FireworksAiLLMApiKey"
+          className="border-none bg-zinc-900 text-white placeholder:text-white/20 text-sm rounded-lg focus:outline-primary-button active:outline-primary-button outline-none block w-full p-2.5"
+          placeholder="Fireworks AI API Key"
+          defaultValue={settings?.FireworksAiLLMApiKey ? "*".repeat(20) : ""}
           required={true}
           autoComplete="off"
           spellCheck={false}
-          onChange={(e) => setInputValue(e.target.value)}
-          onBlur={() => setElevenLabsKey(inputValue)}
         />
       </div>
       {!settings?.credentialsOnly && (
-        <ElevenLabsModelSelection settings={settings} apiKey={elevenLabsKey} />
+        <FireworksAiModelSelection settings={settings} />
       )}
     </div>
   );
 }
-
-function ElevenLabsModelSelection({ apiKey, settings }) {
+function FireworksAiModelSelection({ settings }) {
   const [groupedModels, setGroupedModels] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function findCustomModels() {
       setLoading(true);
-      const { models } = await System.customModels(
-        "elevenlabs-tts",
-        typeof apiKey === "boolean" ? null : apiKey
-      );
+      const { models } = await System.customModels("fireworksai");
 
       if (models?.length > 0) {
         const modelsByOrganization = models.reduce((acc, model) => {
@@ -51,24 +40,25 @@ function ElevenLabsModelSelection({ apiKey, settings }) {
           acc[model.organization].push(model);
           return acc;
         }, {});
+
         setGroupedModels(modelsByOrganization);
       }
 
       setLoading(false);
     }
     findCustomModels();
-  }, [apiKey]);
+  }, []);
 
-  if (loading) {
+  if (loading || Object.keys(groupedModels).length === 0) {
     return (
       <div className="flex flex-col w-60">
         <label className="text-white text-sm font-semibold block mb-3">
           Chat Model Selection
         </label>
         <select
-          name="TTSElevenLabsVoiceModel"
+          name="FireworksAiLLMModelPref"
           disabled={true}
-          className="bg-zinc-900 border-gray-500 text-white text-sm rounded-lg block w-full p-2.5"
+          className="border-none bg-zinc-900 border-gray-500 text-white text-sm rounded-lg block w-full p-2.5"
         >
           <option disabled={true} selected={true}>
             -- loading available models --
@@ -84,9 +74,9 @@ function ElevenLabsModelSelection({ apiKey, settings }) {
         Chat Model Selection
       </label>
       <select
-        name="TTSElevenLabsVoiceModel"
+        name="FireworksAiLLMModelPref"
         required={true}
-        className="bg-zinc-900 border-gray-500 text-white text-sm rounded-lg block w-full p-2.5"
+        className="border-none bg-zinc-900 border-gray-500 text-white text-sm rounded-lg block w-full p-2.5"
       >
         {Object.keys(groupedModels)
           .sort()
@@ -96,7 +86,7 @@ function ElevenLabsModelSelection({ apiKey, settings }) {
                 <option
                   key={model.id}
                   value={model.id}
-                  selected={model.id === settings?.TTSElevenLabsVoiceModel}
+                  selected={settings?.FireworksAiLLMModelPref === model.id}
                 >
                   {model.name}
                 </option>
