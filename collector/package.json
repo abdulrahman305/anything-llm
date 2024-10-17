@@ -33,7 +33,7 @@
     "minimatch": "5.1.0",
     "moment": "^2.29.4",
     "node-html-parser": "^6.1.13",
-    "officeparser": "^4.0.5",
+    "officeparser": "^4.2.0",
     "openai": "4.38.5",
     "pdf-parse": "^1.1.1",
     "puppeteer": "~21.5.2",
