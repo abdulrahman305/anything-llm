@@ -39,10 +39,7 @@ const {
   isMultiUserSetup,
 } = require("../utils/middleware/multiUserProtected");
 const { fetchPfp, determinePfpFilepath } = require("../utils/files/pfp");
-const {
-  prepareWorkspaceChatsForExport,
-  exportChatsAsType,
-} = require("../utils/helpers/chat/convertTo");
+const { exportChatsAsType } = require("../utils/helpers/chat/convertTo");
 const { EventLogs } = require("../models/eventLogs");
 const { CollectorApi } = require("../utils/collectorApi");
 const {
@@ -493,8 +490,6 @@ function systemEndpoints(app) {
 
         await SystemSettings._updateSettings({
           multi_user_mode: true,
-          limit_user_messages: false,
-          message_limit: 25,
         });
         await BrowserExtensionApiKey.migrateApiKeysToMultiUser(user.id);
 
@@ -1009,13 +1004,13 @@ function systemEndpoints(app) {
     [validatedRequest, flexUserRoleValid([ROLES.manager, ROLES.admin])],
     async (request, response) => {
       try {
-        const { type = "jsonl" } = request.query;
-        const chats = await prepareWorkspaceChatsForExport(type);
-        const { contentType, data } = await exportChatsAsType(chats, type);
+        const { type = "jsonl", chatType = "workspace" } = request.query;
+        const { contentType, data } = await exportChatsAsType(type, chatType);
         await EventLogs.logEvent(
           "exported_chats",
           {
             type,
+            chatType,
           },
           response.locals.user?.id
         );
