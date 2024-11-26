@@ -172,6 +172,30 @@ Mintplex Labs & the community maintain a number of deployment methods, scripts, 
 
 [Learn about vector caching](./server/storage/vector-cache/VECTOR_CACHE.md)
 
+## Automated Testing
+
+Automated testing is crucial for maintaining code quality and ensuring that new changes do not introduce bugs. This repository uses a CI/CD pipeline to run automated tests on every push and pull request.
+
+### Running Tests
+
+To run the tests locally, you can use the following commands:
+
+For the server:
+```sh
+cd server
+yarn test
+```
+
+For the frontend:
+```sh
+cd frontend
+yarn test
+```
+
+### CI/CD Pipeline
+
+The CI/CD pipeline is configured to run tests automatically on every push and pull request. This helps catch issues early and maintain a high level of code quality.
+
 ## External Apps & Integrations
 
 _These are apps that are not maintained by Mintplex Labs, but are compatible with AnythingLLM. A listing here is not an endorsement._

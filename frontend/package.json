@@ -8,7 +8,8 @@
     "dev": "NODE_ENV=development vite --debug --host=0.0.0.0",
     "build": "vite build && node scripts/postbuild.js",
     "lint": "yarn prettier --ignore-path ../.prettierignore --write ./src",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "jest" // P8ae2
   },
   "dependencies": {
     "@microsoft/fetch-event-source": "^2.0.1",
@@ -64,6 +65,7 @@
     "flow-remove-types": "^2.217.1",
     "globals": "^13.21.0",
     "hermes-eslint": "^0.15.0",
+    "jest": "^29.6.1", // P8f17
     "postcss": "^8.4.23",
     "prettier": "^3.0.3",
     "rollup-plugin-visualizer": "^5.9.0",
