@@ -30,7 +30,7 @@ export function DnDFileUploaderProvider({ workspace, children }) {
   const { user } = useUser();
 
   useEffect(() => {
-    if (!!user && user.role === "default") return false;
+    if (!!user && user.role === "default") return;
     System.checkDocumentProcessorOnline().then((status) => setReady(status));
   }, [user]);
 
@@ -224,7 +224,7 @@ export default function DnDFileUploaderWrapper({ children }) {
     >
       <div
         hidden={!dragging}
-        className="absolute top-0 w-full h-full bg-dark-text/90 rounded-2xl border-[4px] border-white z-[9999]"
+        className="absolute top-0 w-full h-full bg-dark-text/90 light:bg-[#C2E7FE]/90 rounded-2xl border-[4px] border-white z-[9999]"
       >
         <div className="w-full h-full flex justify-center items-center rounded-xl">
           <div className="flex flex-col gap-y-[14px] justify-center items-center">
