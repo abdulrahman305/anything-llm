@@ -3,6 +3,7 @@ import { baseHeaders, safeJsonParse } from "@/utils/request";
 import DataConnector from "./dataConnector";
 import LiveDocumentSync from "./experimental/liveSync";
 import AgentPlugins from "./experimental/agentPlugins";
+import SystemPromptVariable from "./systemPromptVariable";
 
 const System = {
   cacheKeys: {
@@ -10,6 +11,7 @@ const System = {
     supportEmail: "anythingllm_support_email",
     customAppName: "anythingllm_custom_app_name",
     canViewChatHistory: "anythingllm_can_view_chat_history",
+    deploymentVersion: "anythingllm_deployment_version",
   },
   ping: async function () {
     return await fetch(`${API_BASE}/ping`)
@@ -493,8 +495,8 @@ const System = {
         return { apiKey: null, error: e.message };
       });
   },
-  deleteApiKey: async function () {
-    return fetch(`${API_BASE}/system/api-key`, {
+  deleteApiKey: async function (apiKeyId = "") {
+    return fetch(`${API_BASE}/system/api-key/${apiKeyId}`, {
       method: "DELETE",
       headers: baseHeaders(),
     })
@@ -637,13 +639,15 @@ const System = {
       headers: baseHeaders(),
       body: JSON.stringify(presetData),
     })
-      .then((res) => {
-        if (!res.ok) throw new Error("Could not create slash command preset.");
-        return res.json();
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok)
+          throw new Error(
+            data.message || "Error creating slash command preset."
+          );
+        return data;
       })
-      .then((res) => {
-        return { preset: res.preset, error: null };
-      })
+      .then((res) => ({ preset: res.preset, error: null }))
       .catch((e) => {
         console.error(e);
         return { preset: null, error: e.message };
@@ -656,15 +660,18 @@ const System = {
       headers: baseHeaders(),
       body: JSON.stringify(presetData),
     })
-      .then((res) => {
-        if (!res.ok) throw new Error("Could not update slash command preset.");
-        return res.json();
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok)
+          throw new Error(
+            data.message || "Could not update slash command preset."
+          );
+        return data;
       })
-      .then((res) => {
-        return { preset: res.preset, error: null };
-      })
+      .then((res) => ({ preset: res.preset, error: null }))
       .catch((e) => {
-        return { preset: null, error: "Failed to update this command." };
+        console.error(e);
+        return { preset: null, error: e.message };
       });
   },
 
@@ -736,10 +743,60 @@ const System = {
       });
   },
 
+  /**
+   * Fetches the app version from the server.
+   * @returns {Promise<string | null>} The app version.
+   */
+  fetchAppVersion: async function () {
+    const cache = window.localStorage.getItem(this.cacheKeys.deploymentVersion);
+    const { version, lastFetched } = cache
+      ? safeJsonParse(cache, { version: null, lastFetched: 0 })
+      : { version: null, lastFetched: 0 };
+
+    if (!!version && Date.now() - lastFetched < 3_600_000) return version;
+    const newVersion = await fetch(`${API_BASE}/utils/metrics`, {
+      method: "GET",
+      cache: "no-cache",
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Could not fetch app version.");
+        return res.json();
+      })
+      .then((res) => res?.appVersion)
+      .catch(() => null);
+
+    if (!newVersion) return null;
+    window.localStorage.setItem(
+      this.cacheKeys.deploymentVersion,
+      JSON.stringify({ version: newVersion, lastFetched: Date.now() })
+    );
+    return newVersion;
+  },
+
+  /**
+   * Validates a SQL connection string.
+   * @param {'postgresql'|'mysql'|'sql-server'} engine - the database engine identifier
+   * @param {string} connectionString - the connection string to validate
+   * @returns {Promise<{success: boolean, error: string | null}>}
+   */
+  validateSQLConnection: async function (engine, connectionString) {
+    return fetch(`${API_BASE}/system/validate-sql-connection`, {
+      method: "POST",
+      headers: baseHeaders(),
+      body: JSON.stringify({ engine, connectionString }),
+    })
+      .then((res) => res.json())
+      .catch((e) => {
+        console.error("Failed to validate SQL connection:", e);
+        return { success: false, error: e.message };
+      });
+  },
+
   experimentalFeatures: {
     liveSync: LiveDocumentSync,
     agentPlugins: AgentPlugins,
   },
+  promptVariables: SystemPromptVariable,
 };
 
 export default System;

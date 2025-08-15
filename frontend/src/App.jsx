@@ -17,6 +17,7 @@ import { PfpProvider } from "./PfpContext";
 import { LogoProvider } from "./LogoContext";
 import { FullScreenLoader } from "./components/Preloader";
 import { ThemeProvider } from "./ThemeContext";
+import KeyboardShortcutsHelp from "@/components/KeyboardShortcutsHelp";
 
 const Main = lazy(() => import("@/pages/Main"));
 const InvitePage = lazy(() => import("@/pages/Invite"));
@@ -27,9 +28,17 @@ const AdminWorkspaces = lazy(() => import("@/pages/Admin/Workspaces"));
 const AdminLogs = lazy(() => import("@/pages/Admin/Logging"));
 const AdminAgents = lazy(() => import("@/pages/Admin/Agents"));
 const GeneralChats = lazy(() => import("@/pages/GeneralSettings/Chats"));
-const GeneralAppearance = lazy(
-  () => import("@/pages/GeneralSettings/Appearance")
+const InterfaceSettings = lazy(
+  () => import("@/pages/GeneralSettings/Settings/Interface")
 );
+const BrandingSettings = lazy(
+  () => import("@/pages/GeneralSettings/Settings/Branding")
+);
+
+const ChatSettings = lazy(
+  () => import("@/pages/GeneralSettings/Settings/Chat")
+);
+
 const GeneralApiKeys = lazy(() => import("@/pages/GeneralSettings/ApiKeys"));
 const GeneralLLMPreference = lazy(
   () => import("@/pages/GeneralSettings/LLMPreference")
@@ -54,10 +63,10 @@ const GeneralBrowserExtension = lazy(
   () => import("@/pages/GeneralSettings/BrowserExtensionApiKey")
 );
 const WorkspaceSettings = lazy(() => import("@/pages/WorkspaceSettings"));
-const EmbedConfigSetup = lazy(
-  () => import("@/pages/GeneralSettings/EmbedConfigs")
+
+const ChatEmbedWidgets = lazy(
+  () => import("@/pages/GeneralSettings/ChatEmbedWidgets")
 );
-const EmbedChats = lazy(() => import("@/pages/GeneralSettings/EmbedChats"));
 const PrivacyAndData = lazy(
   () => import("@/pages/GeneralSettings/PrivacyAndData")
 );
@@ -67,7 +76,7 @@ const ExperimentalFeatures = lazy(
 const LiveDocumentSyncManage = lazy(
   () => import("@/pages/Admin/ExperimentalFeatures/Features/LiveSync/manage")
 );
-
+const AgentBuilder = lazy(() => import("@/pages/Admin/AgentBuilder"));
 const CommunityHubTrending = lazy(
   () => import("@/pages/GeneralSettings/CommunityHub/Trending")
 );
@@ -76,6 +85,12 @@ const CommunityHubAuthentication = lazy(
 );
 const CommunityHubImportItem = lazy(
   () => import("@/pages/GeneralSettings/CommunityHub/ImportItem")
+);
+const SystemPromptVariables = lazy(
+  () => import("@/pages/Admin/SystemPromptVariables")
+);
+const MobileConnections = lazy(
+  () => import("@/pages/GeneralSettings/MobileConnections")
 );
 
 export default function App() {
@@ -144,16 +159,30 @@ export default function App() {
                     element={<AdminRoute Component={AdminAgents} />}
                   />
                   <Route
+                    path="/settings/agents/builder"
+                    element={
+                      <AdminRoute
+                        Component={AgentBuilder}
+                        hideUserMenu={true}
+                      />
+                    }
+                  />
+                  <Route
+                    path="/settings/agents/builder/:flowId"
+                    element={
+                      <AdminRoute
+                        Component={AgentBuilder}
+                        hideUserMenu={true}
+                      />
+                    }
+                  />
+                  <Route
                     path="/settings/event-logs"
                     element={<AdminRoute Component={AdminLogs} />}
                   />
                   <Route
-                    path="/settings/embed-config"
-                    element={<AdminRoute Component={EmbedConfigSetup} />}
-                  />
-                  <Route
-                    path="/settings/embed-chats"
-                    element={<AdminRoute Component={EmbedChats} />}
+                    path="/settings/embed-chat-widgets"
+                    element={<AdminRoute Component={ChatEmbedWidgets} />}
                   />
                   {/* Manager */}
                   <Route
@@ -165,8 +194,16 @@ export default function App() {
                     element={<AdminRoute Component={PrivacyAndData} />}
                   />
                   <Route
-                    path="/settings/appearance"
-                    element={<ManagerRoute Component={GeneralAppearance} />}
+                    path="/settings/interface"
+                    element={<ManagerRoute Component={InterfaceSettings} />}
+                  />
+                  <Route
+                    path="/settings/branding"
+                    element={<ManagerRoute Component={BrandingSettings} />}
+                  />
+                  <Route
+                    path="/settings/chat"
+                    element={<ManagerRoute Component={ChatSettings} />}
                   />
                   <Route
                     path="/settings/beta-features"
@@ -175,6 +212,10 @@ export default function App() {
                   <Route
                     path="/settings/api-keys"
                     element={<AdminRoute Component={GeneralApiKeys} />}
+                  />
+                  <Route
+                    path="/settings/system-prompt-variables"
+                    element={<AdminRoute Component={SystemPromptVariables} />}
                   />
                   <Route
                     path="/settings/browser-extension"
@@ -226,8 +267,14 @@ export default function App() {
                     path="/settings/community-hub/import-item"
                     element={<AdminRoute Component={CommunityHubImportItem} />}
                   />
+
+                  <Route
+                    path="/settings/mobile-connections"
+                    element={<ManagerRoute Component={MobileConnections} />}
+                  />
                 </Routes>
                 <ToastContainer />
+                <KeyboardShortcutsHelp />
               </I18nextProvider>
             </PfpProvider>
           </LogoProvider>
