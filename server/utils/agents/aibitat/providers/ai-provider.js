@@ -117,13 +117,18 @@ class Provider {
           ...config,
         });
       case "bedrock":
+        // Grab just the credentials from the bedrock provider
+        // using a closure to avoid circular dependency + to avoid instantiating the provider
+        const credentials = (() => {
+          const AWSBedrockProvider = require("./bedrock");
+          const bedrockProvider = new AWSBedrockProvider();
+          return bedrockProvider.credentials;
+        })();
+
         return new ChatBedrockConverse({
           model: process.env.AWS_BEDROCK_LLM_MODEL_PREFERENCE,
           region: process.env.AWS_BEDROCK_LLM_REGION,
-          credentials: {
-            accessKeyId: process.env.AWS_BEDROCK_LLM_ACCESS_KEY_ID,
-            secretAccessKey: process.env.AWS_BEDROCK_LLM_ACCESS_KEY,
-          },
+          credentials: credentials,
           ...config,
         });
       case "fireworksai":
@@ -163,7 +168,30 @@ class Provider {
           apiKey: process.env.NOVITA_LLM_API_KEY ?? null,
           ...config,
         });
-
+      case "ppio":
+        return new ChatOpenAI({
+          configuration: {
+            baseURL: "https://api.ppinfra.com/v3/openai",
+          },
+          apiKey: process.env.PPIO_API_KEY ?? null,
+          ...config,
+        });
+      case "gemini":
+        return new ChatOpenAI({
+          configuration: {
+            baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+          },
+          apiKey: process.env.GEMINI_API_KEY ?? null,
+          ...config,
+        });
+      case "moonshotai":
+        return new ChatOpenAI({
+          configuration: {
+            baseURL: "https://api.moonshot.ai/v1",
+          },
+          apiKey: process.env.MOONSHOT_AI_API_KEY ?? null,
+          ...config,
+        });
       // OSS Model Runners
       // case "anythingllm_ollama":
       //   return new ChatOllama({

@@ -1,4 +1,53 @@
+// Anything with "null" requires a translation. Contribute to translation via a PR!
 const TRANSLATIONS = {
+  onboarding: {
+    survey: {
+      email: null,
+      useCase: null,
+      useCaseWork: null,
+      useCasePersonal: null,
+      useCaseOther: null,
+      comment: null,
+      commentPlaceholder: null,
+      skip: null,
+      thankYou: null,
+      title: null,
+      description: null,
+    },
+    home: {
+      title: null,
+      getStarted: null,
+    },
+    llm: {
+      title: null,
+      description: null,
+    },
+    userSetup: {
+      title: null,
+      description: null,
+      howManyUsers: null,
+      justMe: null,
+      myTeam: null,
+      instancePassword: null,
+      setPassword: null,
+      passwordReq: null,
+      passwordWarn: null,
+      adminUsername: null,
+      adminUsernameReq: null,
+      adminPassword: null,
+      adminPasswordReq: null,
+      teamHint: null,
+    },
+    data: {
+      title: null,
+      description: null,
+      settingsHint: null,
+    },
+    workspace: {
+      title: null,
+      description: null,
+    },
+  },
   common: {
     "workspaces-name": "نام فضای کار",
     error: "خطا",
@@ -9,9 +58,11 @@ const TRANSLATIONS = {
     save: "ذخیره تغییرات",
     previous: "صفحه قبلی",
     next: "صفحه بعدی",
+    optional: null,
+    yes: null,
+    no: null,
+    search: null,
   },
-
-  // Setting Sidebar menu items.
   settings: {
     title: "تنظیمات سامانه",
     system: "تنظیمات عمومی",
@@ -39,9 +90,11 @@ const TRANSLATIONS = {
     "experimental-features": "ویژگی‌های آزمایشی",
     contact: "تماس با پشتیبانی",
     "browser-extension": "افزونه مرورگر",
+    "system-prompt-variables": null,
+    interface: null,
+    branding: null,
+    chat: null,
   },
-
-  // Page Definitions
   login: {
     "multi-user": {
       welcome: "خوش آمدید به",
@@ -64,7 +117,6 @@ const TRANSLATIONS = {
       "back-to-login": "بازگشت به صفحه ورود",
     },
   },
-
   welcomeMessage: {
     part1:
       "به AnythingLLM خوش آمدید. AnythingLLM یک ابزار هوش مصنوعی متن‌باز توسط Mintplex Labs است که هر چیزی را به یک ربات گفتگوی آموزش‌دیده تبدیل می‌کند که می‌توانید با آن گفتگو و پرس‌وجو کنید. AnythingLLM یک نرم‌افزار BYOK (آوردن کلیدهای خودتان) است، بنابراین هیچ اشتراک، هزینه یا مبلغی برای این نرم‌افزار خارج از سرویس‌هایی که می‌خواهید با آن استفاده کنید، وجود ندارد.",
@@ -83,16 +135,13 @@ const TRANSLATIONS = {
       "AnythingLLM بیشتر از یک دراپ‌باکس هوشمند است.\n\nAnythingLLM دو روش برای صحبت با داده‌های شما ارائه می‌دهد:\n\n<i>پرس‌وجو:</i> گفتگوهای شما داده‌ها یا استنباط‌های یافت شده در اسناد فضای کاری که به آن دسترسی دارد را برمی‌گرداند. افزودن اسناد بیشتر به فضای کاری آن را هوشمندتر می‌کند!\n\n<i>مکالمه‌ای:</i> اسناد شما + تاریخچه گفتگوی جاری شما هر دو همزمان به دانش LLM کمک می‌کنند. برای افزودن اطلاعات متنی بلادرنگ یا اصلاح اشتباهات و سوءتفاهم‌هایی که LLM ممکن است داشته باشد، عالی است.\n\nشما می‌توانید بین هر دو حالت \n<i>در وسط گفتگو!</i> جابجا شوید.",
     user3: "وای، این عالی به نظر می‌رسد، بگذارید همین حالا امتحانش کنم!",
     part6: "خوش بگذره!",
-    starOnGithub: "ستاره در گیت‌هاب",
+    starOnGitHub: "ستاره در گیت‌هاب",
     contact: "تماس با Mintplex Labs",
   },
-
   "new-workspace": {
     title: "فضای کاری جدید",
     placeholder: "فضای کاری من",
   },
-
-  // Workspace Settings menu items
   "workspaces—settings": {
     general: "تنظیمات عمومی",
     chat: "تنظیمات گفتگو",
@@ -100,8 +149,6 @@ const TRANSLATIONS = {
     members: "اعضا",
     agent: "پیکربندی عامل",
   },
-
-  // General Appearance
   general: {
     vector: {
       title: "تعداد بردارها",
@@ -136,8 +183,6 @@ const TRANSLATIONS = {
         "فضای کاری هستید. این کار تمام جاسازی‌های برداری را از پایگاه داده برداری شما حذف خواهد کرد.\n\nفایل‌های اصلی منبع دست نخورده باقی خواهند ماند. این عمل برگشت‌ناپذیر است.",
     },
   },
-
-  // Chat Settings
   chat: {
     llm: {
       title: "ارائه‌دهنده LLM فضای کاری",
@@ -178,6 +223,17 @@ const TRANSLATIONS = {
       title: "پیش‌متن",
       description:
         "پیش‌متنی که در این فضای کاری استفاده خواهد شد. زمینه و دستورالعمل‌ها را برای تولید پاسخ توسط هوش مصنوعی تعریف کنید. باید یک پیش‌متن دقیق ارائه دهید تا هوش مصنوعی بتواند پاسخی مرتبط و دقیق تولید کند.",
+      history: {
+        title: null,
+        clearAll: null,
+        noHistory: null,
+        restore: null,
+        delete: null,
+        deleteConfirm: null,
+        clearAllConfirm: null,
+        expand: null,
+        publish: null,
+      },
     },
     refusal: {
       title: "پاسخ رد در حالت پرس‌وجو",
@@ -185,6 +241,8 @@ const TRANSLATIONS = {
       query: "پرس‌وجو",
       "desc-end":
         "ممکن است بخواهید هنگامی که هیچ محتوایی یافت نمی‌شود، یک پاسخ رد سفارشی برگردانید.",
+      "tooltip-title": null,
+      "tooltip-description": null,
     },
     temperature: {
       title: "دمای LLM",
@@ -195,8 +253,6 @@ const TRANSLATIONS = {
       hint: "اکثر LLMها محدوده‌های مختلفی از مقادیر معتبر را دارند. برای این اطلاعات به ارائه‌دهنده LLM خود مراجعه کنید.",
     },
   },
-
-  // Vector Database
   "vector-workspace": {
     identifier: "شناسه پایگاه داده برداری",
     snippets: {
@@ -223,8 +279,6 @@ const TRANSLATIONS = {
       success: "پایگاه داده برداری فضای کاری بازنشانی شد!",
     },
   },
-
-  // Agent Configuration
   agent: {
     "performance-warning":
       "عملکرد LLMهایی که به طور صریح از فراخوانی ابزار پشتیبانی نمی‌کنند، به شدت به قابلیت‌ها و دقت مدل وابسته است. برخی توانایی‌ها ممکن است محدود یا غیرفعال باشند.",
@@ -282,8 +336,6 @@ const TRANSLATIONS = {
       },
     },
   },
-
-  // Workspace Chats
   recorded: {
     title: "گفتگوهای فضای کاری",
     description:
@@ -298,41 +350,6 @@ const TRANSLATIONS = {
       at: "زمان ارسال",
     },
   },
-
-  // Appearance
-  appearance: {
-    title: "ظاهر",
-    description: "تنظیمات ظاهری پلتفرم خود را شخصی‌سازی کنید.",
-    logo: {
-      title: "شخصی‌سازی لوگو",
-      description: "لوگوی سفارشی خود را برای شخصی‌سازی ربات گفتگو آپلود کنید.",
-      add: "افزودن لوگوی سفارشی",
-      recommended: "اندازه پیشنهادی: 800 x 200",
-      remove: "حذف",
-      replace: "جایگزینی",
-    },
-    message: {
-      title: "شخصی‌سازی پیام‌ها",
-      description:
-        "پیام‌های خودکار نمایش داده شده به کاربران را شخصی‌سازی کنید.",
-      new: "جدید",
-      system: "سیستم",
-      user: "کاربر",
-      message: "پیام",
-      assistant: "دستیار گفتگوی AnythingLLM",
-      "double-click": "برای ویرایش دوبار کلیک کنید...",
-      save: "ذخیره پیام‌ها",
-    },
-    icons: {
-      title: "آیکون‌های سفارشی پاورقی",
-      description:
-        "آیکون‌های نمایش داده شده در پایین نوار کناری را شخصی‌سازی کنید.",
-      icon: "آیکون",
-      link: "لینک",
-    },
-  },
-
-  // API Keys
   api: {
     title: "کلیدهای API",
     description:
@@ -345,14 +362,23 @@ const TRANSLATIONS = {
       created: "تاریخ ایجاد",
     },
   },
-
   llm: {
     title: "ترجیحات مدل زبانی",
     description:
       "این‌ها اعتبارنامه‌ها و تنظیمات ارائه‌دهنده مدل زبانی و جاسازی انتخابی شما هستند. مهم است که این کلیدها به‌روز و صحیح باشند در غیر این صورت AnythingLLM به درستی کار نخواهد کرد.",
     provider: "ارائه‌دهنده مدل زبانی",
+    providers: {
+      azure_openai: {
+        azure_service_endpoint: null,
+        api_key: null,
+        chat_deployment_name: null,
+        chat_model_token_limit: null,
+        model_type: null,
+        default: null,
+        reasoning: null,
+      },
+    },
   },
-
   transcription: {
     title: "ترجیحات مدل رونویسی",
     description:
@@ -364,7 +390,6 @@ const TRANSLATIONS = {
       "ما حداقل ۲ گیگابایت RAM و آپلود فایل‌های کمتر از ۱۰ مگابایت را توصیه می‌کنیم.",
     "warn-end": "مدل داخلی در اولین استفاده به صورت خودکار دانلود خواهد شد.",
   },
-
   embedding: {
     title: "ترجیحات جاسازی",
     "desc-start":
@@ -373,20 +398,14 @@ const TRANSLATIONS = {
       "جاسازی فرآیند تبدیل متن به بردارها است. این اعتبارنامه‌ها برای تبدیل فایل‌ها و درخواست‌های شما به فرمتی که AnythingLLM بتواند پردازش کند، ضروری هستند.",
     provider: {
       title: "ارائه‌دهنده جاسازی",
-      description:
-        "هنگام استفاده از موتور جاسازی داخلی AnythingLLM نیازی به تنظیمات نیست.",
     },
   },
-
   text: {
     title: "تقسیم متن و تکه‌بندی",
     "desc-start":
       "تقسیم متن به شما امکان می‌دهد اسناد بزرگ را به بخش‌های کوچک‌تر تقسیم کنید که برای جاسازی و پردازش مناسب‌تر هستند.",
     "desc-end":
       "سعی کنید تعادلی بین اندازه بخش و همپوشانی ایجاد کنید تا از دست رفتن اطلاعات را به حداقل برسانید.",
-    "warn-start": "تغییر این مقادیر نیاز به",
-    "warn-center": "پردازش مجدد تمام اسناد",
-    "warn-end": "خواهد داشت.",
     size: {
       title: "حداکثر اندازه بخش",
       description:
@@ -399,8 +418,6 @@ const TRANSLATIONS = {
         "این حداکثر همپوشانی کاراکترها است که در هنگام تکه‌بندی بین دو بخش متن مجاور رخ می‌دهد.",
     },
   },
-
-  // Vector Database
   vector: {
     title: "پایگاه داده برداری",
     description:
@@ -410,8 +427,6 @@ const TRANSLATIONS = {
       description: "برای LanceDB نیازی به پیکربندی نیست.",
     },
   },
-
-  // Embeddable Chat Widgets
   embeddable: {
     title: "جاسازی گفتگو",
     description:
@@ -420,10 +435,10 @@ const TRANSLATIONS = {
     table: {
       workspace: "فضای کاری",
       chats: "گفتگوهای ارسال شده",
-      Active: "دامنه‌های فعال",
+      active: "دامنه‌های فعال",
+      created: null,
     },
   },
-
   "embed-chats": {
     title: "گفتگوهای جاسازی شده",
     export: "خروجی‌گیری",
@@ -437,33 +452,6 @@ const TRANSLATIONS = {
       at: "زمان ارسال",
     },
   },
-
-  multi: {
-    title: "حالت چند کاربره",
-    description:
-      "نمونه خود را برای پشتیبانی از تیم خود با فعال‌سازی حالت چند کاربره تنظیم کنید.",
-    enable: {
-      "is-enable": "حالت چند کاربره فعال است",
-      enable: "فعال‌سازی حالت چند کاربره",
-      description:
-        "به طور پیش‌فرض، شما تنها مدیر خواهید بود. به عنوان مدیر، باید برای تمام کاربران یا مدیران جدید حساب کاربری ایجاد کنید. رمز عبور خود را گم نکنید زیرا فقط یک کاربر مدیر می‌تواند رمزهای عبور را بازنشانی کند.",
-      username: "نام کاربری حساب مدیر",
-      password: "رمز عبور حساب مدیر",
-    },
-    password: {
-      title: "حفاظت با رمز عبور",
-      description:
-        "از نمونه AnythingLLM خود با رمز عبور محافظت کنید. اگر این رمز را فراموش کنید هیچ روش بازیابی وجود ندارد، پس حتماً این رمز عبور را ذخیره کنید.",
-    },
-    instance: {
-      title: "محافظت از نمونه با رمز عبور",
-      description:
-        "به طور پیش‌فرض، شما تنها مدیر خواهید بود. به عنوان مدیر، باید برای تمام کاربران یا مدیران جدید حساب کاربری ایجاد کنید. رمز عبور خود را گم نکنید زیرا فقط یک کاربر مدیر می‌تواند رمزهای عبور را بازنشانی کند.",
-      password: "رمز عبور نمونه",
-    },
-  },
-
-  // Event Logs
   event: {
     title: "گزارش رویدادها",
     description:
@@ -475,8 +463,6 @@ const TRANSLATIONS = {
       occurred: "زمان وقوع",
     },
   },
-
-  // Privacy & Data-Handling
   privacy: {
     title: "حریم خصوصی و مدیریت داده‌ها",
     description:
@@ -485,6 +471,532 @@ const TRANSLATIONS = {
     embedding: "ترجیحات جاسازی",
     vector: "پایگاه داده برداری",
     anonymous: "ارسال تله‌متری ناشناس فعال است",
+  },
+  connectors: {
+    "search-placeholder": null,
+    "no-connectors": null,
+    github: {
+      name: null,
+      description: null,
+      URL: null,
+      URL_explained: null,
+      token: null,
+      optional: null,
+      token_explained: null,
+      token_explained_start: null,
+      token_explained_link1: null,
+      token_explained_middle: null,
+      token_explained_link2: null,
+      token_explained_end: null,
+      ignores: null,
+      git_ignore: null,
+      task_explained: null,
+      branch: null,
+      branch_loading: null,
+      branch_explained: null,
+      token_information: null,
+      token_personal: null,
+    },
+    gitlab: {
+      name: null,
+      description: null,
+      URL: null,
+      URL_explained: null,
+      token: null,
+      optional: null,
+      token_explained: null,
+      token_description: null,
+      token_explained_start: null,
+      token_explained_link1: null,
+      token_explained_middle: null,
+      token_explained_link2: null,
+      token_explained_end: null,
+      fetch_issues: null,
+      ignores: null,
+      git_ignore: null,
+      task_explained: null,
+      branch: null,
+      branch_loading: null,
+      branch_explained: null,
+      token_information: null,
+      token_personal: null,
+    },
+    youtube: {
+      name: null,
+      description: null,
+      URL: null,
+      URL_explained_start: null,
+      URL_explained_link: null,
+      URL_explained_end: null,
+      task_explained: null,
+      language: null,
+      language_explained: null,
+      loading_languages: null,
+    },
+    "website-depth": {
+      name: null,
+      description: null,
+      URL: null,
+      URL_explained: null,
+      depth: null,
+      depth_explained: null,
+      max_pages: null,
+      max_pages_explained: null,
+      task_explained: null,
+    },
+    confluence: {
+      name: null,
+      description: null,
+      deployment_type: null,
+      deployment_type_explained: null,
+      base_url: null,
+      base_url_explained: null,
+      space_key: null,
+      space_key_explained: null,
+      username: null,
+      username_explained: null,
+      auth_type: null,
+      auth_type_explained: null,
+      auth_type_username: null,
+      auth_type_personal: null,
+      token: null,
+      token_explained_start: null,
+      token_explained_link: null,
+      token_desc: null,
+      pat_token: null,
+      pat_token_explained: null,
+      task_explained: null,
+    },
+    manage: {
+      documents: null,
+      "data-connectors": null,
+      "desktop-only": null,
+      dismiss: null,
+      editing: null,
+    },
+    directory: {
+      "my-documents": null,
+      "new-folder": null,
+      "search-document": null,
+      "no-documents": null,
+      "move-workspace": null,
+      name: null,
+      "delete-confirmation": null,
+      "removing-message": null,
+      "move-success": null,
+      date: null,
+      type: null,
+      no_docs: null,
+      select_all: null,
+      deselect_all: null,
+      remove_selected: null,
+      costs: null,
+      save_embed: null,
+    },
+    upload: {
+      "processor-offline": null,
+      "processor-offline-desc": null,
+      "click-upload": null,
+      "file-types": null,
+      "or-submit-link": null,
+      "placeholder-link": null,
+      fetching: null,
+      "fetch-website": null,
+      "privacy-notice": null,
+    },
+    pinning: {
+      what_pinning: null,
+      pin_explained_block1: null,
+      pin_explained_block2: null,
+      pin_explained_block3: null,
+      accept: null,
+    },
+    watching: {
+      what_watching: null,
+      watch_explained_block1: null,
+      watch_explained_block2: null,
+      watch_explained_block3_start: null,
+      watch_explained_block3_link: null,
+      watch_explained_block3_end: null,
+      accept: null,
+    },
+    obsidian: {
+      name: null,
+      description: null,
+      vault_location: null,
+      vault_description: null,
+      selected_files: null,
+      importing: null,
+      import_vault: null,
+      processing_time: null,
+      vault_warning: null,
+    },
+  },
+  chat_window: {
+    welcome: null,
+    get_started: null,
+    get_started_default: null,
+    upload: null,
+    or: null,
+    send_chat: null,
+    send_message: null,
+    attach_file: null,
+    slash: null,
+    agents: null,
+    text_size: null,
+    microphone: null,
+    send: null,
+    attachments_processing: null,
+    tts_speak_message: null,
+    copy: null,
+    regenerate: null,
+    regenerate_response: null,
+    good_response: null,
+    more_actions: null,
+    hide_citations: null,
+    show_citations: null,
+    pause_tts_speech_message: null,
+    fork: null,
+    delete: null,
+    save_submit: null,
+    cancel: null,
+    edit_prompt: null,
+    edit_response: null,
+    at_agent: null,
+    default_agent_description: null,
+    custom_agents_coming_soon: null,
+    slash_reset: null,
+    preset_reset_description: null,
+    add_new_preset: null,
+    command: null,
+    your_command: null,
+    placeholder_prompt: null,
+    description: null,
+    placeholder_description: null,
+    save: null,
+    small: null,
+    normal: null,
+    large: null,
+    workspace_llm_manager: {
+      search: null,
+      loading_workspace_settings: null,
+      available_models: null,
+      available_models_description: null,
+      save: null,
+      saving: null,
+      missing_credentials: null,
+      missing_credentials_description: null,
+    },
+  },
+  profile_settings: {
+    edit_account: null,
+    profile_picture: null,
+    remove_profile_picture: null,
+    username: null,
+    username_description: null,
+    new_password: null,
+    password_description: null,
+    cancel: null,
+    update_account: null,
+    theme: null,
+    language: null,
+    failed_upload: null,
+    upload_success: null,
+    failed_remove: null,
+    profile_updated: null,
+    failed_update_user: null,
+    account: null,
+    support: null,
+    signout: null,
+  },
+  customization: {
+    interface: {
+      title: null,
+      description: null,
+    },
+    branding: {
+      title: null,
+      description: null,
+    },
+    chat: {
+      title: null,
+      description: null,
+      auto_submit: {
+        title: null,
+        description: null,
+      },
+      auto_speak: {
+        title: null,
+        description: null,
+      },
+      spellcheck: {
+        title: null,
+        description: null,
+      },
+    },
+    items: {
+      theme: {
+        title: null,
+        description: null,
+      },
+      "show-scrollbar": {
+        title: null,
+        description: null,
+      },
+      "support-email": {
+        title: null,
+        description: null,
+      },
+      "app-name": {
+        title: null,
+        description: null,
+      },
+      "chat-message-alignment": {
+        title: null,
+        description: null,
+      },
+      "display-language": {
+        title: null,
+        description: null,
+      },
+      logo: {
+        title: null,
+        description: null,
+        add: null,
+        recommended: null,
+        remove: null,
+        replace: null,
+      },
+      "welcome-messages": {
+        title: null,
+        description: null,
+        new: null,
+        system: null,
+        user: null,
+        message: null,
+        assistant: null,
+        "double-click": null,
+        save: null,
+      },
+      "browser-appearance": {
+        title: null,
+        description: null,
+        tab: {
+          title: null,
+          description: null,
+        },
+        favicon: {
+          title: null,
+          description: null,
+        },
+      },
+      "sidebar-footer": {
+        title: null,
+        description: null,
+        icon: null,
+        link: null,
+      },
+    },
+  },
+  "main-page": {
+    noWorkspaceError: null,
+    checklist: {
+      title: null,
+      tasksLeft: null,
+      completed: null,
+      dismiss: null,
+      tasks: {
+        create_workspace: {
+          title: null,
+          description: null,
+          action: null,
+        },
+        send_chat: {
+          title: null,
+          description: null,
+          action: null,
+        },
+        embed_document: {
+          title: null,
+          description: null,
+          action: null,
+        },
+        setup_system_prompt: {
+          title: null,
+          description: null,
+          action: null,
+        },
+        define_slash_command: {
+          title: null,
+          description: null,
+          action: null,
+        },
+        visit_community: {
+          title: null,
+          description: null,
+          action: null,
+        },
+      },
+    },
+    quickLinks: {
+      title: null,
+      sendChat: null,
+      embedDocument: null,
+      createWorkspace: null,
+    },
+    exploreMore: {
+      title: null,
+      features: {
+        customAgents: {
+          title: null,
+          description: null,
+          primaryAction: null,
+          secondaryAction: null,
+        },
+        slashCommands: {
+          title: null,
+          description: null,
+          primaryAction: null,
+          secondaryAction: null,
+        },
+        systemPrompts: {
+          title: null,
+          description: null,
+          primaryAction: null,
+          secondaryAction: null,
+        },
+      },
+    },
+    announcements: {
+      title: null,
+    },
+    resources: {
+      title: null,
+      links: {
+        docs: null,
+        star: null,
+      },
+      keyboardShortcuts: null,
+    },
+  },
+  "keyboard-shortcuts": {
+    title: null,
+    shortcuts: {
+      settings: null,
+      workspaceSettings: null,
+      home: null,
+      workspaces: null,
+      apiKeys: null,
+      llmPreferences: null,
+      chatSettings: null,
+      help: null,
+      showLLMSelector: null,
+    },
+  },
+  community_hub: {
+    publish: {
+      system_prompt: {
+        success_title: null,
+        success_description: null,
+        success_thank_you: null,
+        view_on_hub: null,
+        modal_title: null,
+        name_label: null,
+        name_description: null,
+        name_placeholder: null,
+        description_label: null,
+        description_description: null,
+        tags_label: null,
+        tags_description: null,
+        tags_placeholder: null,
+        visibility_label: null,
+        public_description: null,
+        private_description: null,
+        publish_button: null,
+        submitting: null,
+        submit: null,
+        prompt_label: null,
+        prompt_description: null,
+        prompt_placeholder: null,
+      },
+      agent_flow: {
+        public_description: null,
+        private_description: null,
+        success_title: null,
+        success_description: null,
+        success_thank_you: null,
+        view_on_hub: null,
+        modal_title: null,
+        name_label: null,
+        name_description: null,
+        name_placeholder: null,
+        description_label: null,
+        description_description: null,
+        tags_label: null,
+        tags_description: null,
+        tags_placeholder: null,
+        visibility_label: null,
+        publish_button: null,
+        submitting: null,
+        submit: null,
+        privacy_note: null,
+      },
+      generic: {
+        unauthenticated: {
+          title: null,
+          description: null,
+          button: null,
+        },
+      },
+      slash_command: {
+        success_title: null,
+        success_description: null,
+        success_thank_you: null,
+        view_on_hub: null,
+        modal_title: null,
+        name_label: null,
+        name_description: null,
+        name_placeholder: null,
+        description_label: null,
+        description_description: null,
+        command_label: null,
+        command_description: null,
+        command_placeholder: null,
+        tags_label: null,
+        tags_description: null,
+        tags_placeholder: null,
+        visibility_label: null,
+        public_description: null,
+        private_description: null,
+        publish_button: null,
+        submitting: null,
+        prompt_label: null,
+        prompt_description: null,
+        prompt_placeholder: null,
+      },
+    },
+  },
+  security: {
+    title: "امنیت",
+    multiuser: {
+      title: "حالت چند کاربره",
+      description:
+        "نمونه خود را برای پشتیبانی از تیم خود با فعال‌سازی حالت چند کاربره تنظیم کنید.",
+      enable: {
+        "is-enable": "حالت چند کاربره فعال است",
+        enable: "فعال‌سازی حالت چند کاربره",
+        description:
+          "به طور پیش‌فرض، شما تنها مدیر خواهید بود. به عنوان مدیر، باید برای تمام کاربران یا مدیران جدید حساب کاربری ایجاد کنید. رمز عبور خود را گم نکنید زیرا فقط یک کاربر مدیر می‌تواند رمزهای عبور را بازنشانی کند.",
+        username: "نام کاربری حساب مدیر",
+        password: "رمز عبور حساب مدیر",
+      },
+    },
+    password: {
+      title: "حفاظت با رمز عبور",
+      description:
+        "از نمونه AnythingLLM خود با رمز عبور محافظت کنید. اگر این رمز را فراموش کنید هیچ روش بازیابی وجود ندارد، پس حتماً این رمز عبور را ذخیره کنید.",
+      "password-label": "رمز عبور نمونه",
+    },
   },
 };
 

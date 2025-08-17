@@ -33,7 +33,7 @@ STORAGE_DIR="/your/absolute/path/to/server/storage"
 5. Edit the `frontend/.env` file for the `VITE_BASE_API` to now be set to `/api`. This is documented in the .env for which one you should use.
 ```
 # VITE_API_BASE='http://localhost:3001/api' # Use this URL when developing locally
-# VITE_API_BASE="https://$CODESPACE_NAME-3001.$GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN/api" # for Github Codespaces
+# VITE_API_BASE="https://$CODESPACE_NAME-3001.$GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN/api" # for GitHub Codespaces
 VITE_API_BASE='/api' # Use this URL deploying on non-localhost address OR in docker.
 ```
 
@@ -86,7 +86,7 @@ curl -I "http://localhost:3001/api/env-dump" | head -n 1|cut -d$' ' -f2
 echo "Rebuilding Frontend"
 cd $HOME/anything-llm/frontend && yarn && yarn build && cd $HOME/anything-llm
 
-echo "Copying to Sever Public"
+echo "Copying to Server Public"
 rm -rf server/public
 cp -r frontend/dist server/public
 

@@ -1,12 +1,12 @@
 import React, { memo } from "react";
-import { Warning } from "@phosphor-icons/react";
+import { Info, Warning } from "@phosphor-icons/react";
 import UserIcon from "../../../../UserIcon";
 import Actions from "./Actions";
 import renderMarkdown from "@/utils/chat/markdown";
 import { userFromStorage } from "@/utils/request";
 import Citations from "../Citation";
 import { v4 } from "uuid";
-import createDOMPurify from "dompurify";
+import DOMPurify from "@/utils/chat/purify";
 import { EditMessageForm, useEditMessage } from "./Actions/EditMessage";
 import { useWatchDeleteMessage } from "./Actions/DeleteMessage";
 import TTSMessage from "./Actions/TTSButton";
@@ -16,8 +16,11 @@ import {
   THOUGHT_REGEX_OPEN,
   ThoughtChainComponent,
 } from "../ThoughtContainer";
+import paths from "@/utils/paths";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+import { chatQueryRefusalResponse } from "@/utils/chat";
 
-const DOMPurify = createDOMPurify(window);
 const HistoricalMessage = ({
   uuid = v4(),
   message,
@@ -33,7 +36,9 @@ const HistoricalMessage = ({
   saveEditedMessage,
   forkThread,
   metrics = {},
+  alignmentCls = "",
 }) => {
+  const { t } = useTranslation();
   const { isEditing } = useEditMessage({ chatId, role });
   const { isDeleted, completeDelete, onEndAnimation } = useWatchDeleteMessage({
     chatId,
@@ -45,6 +50,9 @@ const HistoricalMessage = ({
     element.style.height = element.scrollHeight + "px";
   };
 
+  const isRefusalMessage =
+    role === "assistant" && message === chatQueryRefusalResponse(workspace);
+
   if (!!error) {
     return (
       <div
@@ -52,7 +60,7 @@ const HistoricalMessage = ({
         className={`flex justify-center items-end w-full bg-theme-bg-chat`}
       >
         <div className="py-8 px-4 w-full flex gap-x-5 md:max-w-[80%] flex-col">
-          <div className="flex gap-x-5">
+          <div className={`flex gap-x-5 ${alignmentCls}`}>
             <ProfileImage role={role} workspace={workspace} />
             <div className="p-2 rounded-lg bg-red-50 text-red-500">
               <span className="inline-block">
@@ -70,6 +78,7 @@ const HistoricalMessage = ({
   }
 
   if (completeDelete) return null;
+
   return (
     <div
       key={uuid}
@@ -79,7 +88,7 @@ const HistoricalMessage = ({
       } flex justify-center items-end w-full group bg-theme-bg-chat`}
     >
       <div className="py-8 px-4 w-full flex gap-x-5 md:max-w-[80%] flex-col">
-        <div className="flex gap-x-5">
+        <div className={`flex gap-x-5 ${alignmentCls}`}>
           <div className="flex flex-col items-center">
             <ProfileImage role={role} workspace={workspace} />
             <div className="mt-1 -mb-10">
@@ -108,6 +117,22 @@ const HistoricalMessage = ({
                 message={message}
                 expanded={isLastMessage}
               />
+              {isRefusalMessage && (
+                <Link
+                  data-tooltip-id="query-refusal-info"
+                  data-tooltip-content={`${t("chat.refusal.tooltip-description")}`}
+                  className="!no-underline group !flex w-fit"
+                  to={paths.chatModes()}
+                  target="_blank"
+                >
+                  <div className="flex flex-row items-center gap-x-1 group-hover:opacity-100 opacity-60 w-fit">
+                    <Info className="text-theme-text-secondary" />
+                    <p className="!m-0 !p-0 text-theme-text-secondary !no-underline text-xs cursor-pointer">
+                      {t("chat.refusal.tooltip-title")}
+                    </p>
+                  </div>
+                </Link>
+              )}
               <ChatAttachments attachments={attachments} />
             </div>
           )}
@@ -124,6 +149,7 @@ const HistoricalMessage = ({
             role={role}
             forkThread={forkThread}
             metrics={metrics}
+            alignmentCls={alignmentCls}
           />
         </div>
         {role === "assistant" && <Citations sources={sources} />}

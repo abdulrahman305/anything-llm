@@ -25,7 +25,6 @@ import AWSBedrockLogo from "@/media/llmprovider/bedrock.png";
 import DeepSeekLogo from "@/media/llmprovider/deepseek.png";
 import APIPieLogo from "@/media/llmprovider/apipie.png";
 import XAILogo from "@/media/llmprovider/xai.png";
-
 import CohereLogo from "@/media/llmprovider/cohere.png";
 import ZillizLogo from "@/media/vectordbs/zilliz.png";
 import AstraDBLogo from "@/media/vectordbs/astraDB.png";
@@ -36,14 +35,16 @@ import WeaviateLogo from "@/media/vectordbs/weaviate.png";
 import QDrantLogo from "@/media/vectordbs/qdrant.png";
 import MilvusLogo from "@/media/vectordbs/milvus.png";
 import VoyageAiLogo from "@/media/embeddingprovider/voyageai.png";
+import PPIOLogo from "@/media/llmprovider/ppio.png";
+import PGVectorLogo from "@/media/vectordbs/pgvector.png";
+import DPAISLogo from "@/media/llmprovider/dpais.png";
+import MoonshotAiLogo from "@/media/llmprovider/moonshotai.png";
 
 import React, { useState, useEffect } from "react";
 import paths from "@/utils/paths";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
-const TITLE = "Data Handling & Privacy";
-const DESCRIPTION =
-  "We are committed to transparency and control when it comes to your personal data.";
 export const LLM_SELECTION_PRIVACY = {
   openai: {
     name: "OpenAI",
@@ -228,14 +229,53 @@ export const LLM_SELECTION_PRIVACY = {
     ],
     logo: XAILogo,
   },
+  ppio: {
+    name: "PPIO",
+    description: [
+      "Your chats will not be used for training",
+      "Your prompts and document text used in response creation are visible to PPIO",
+    ],
+    logo: PPIOLogo,
+  },
+  dpais: {
+    name: "Dell Pro AI Studio",
+    description: [
+      "Your model and chat contents are only accessible on the computer running Dell Pro AI Studio",
+    ],
+    logo: DPAISLogo,
+  },
+  moonshotai: {
+    name: "Moonshot AI",
+    description: [
+      "Your chats may be used by Moonshot AI for training and model refinement",
+      "Your prompts and document text used in response creation are visible to Moonshot AI",
+    ],
+    logo: MoonshotAiLogo,
+  },
 };
 
 export const VECTOR_DB_PRIVACY = {
+  pgvector: {
+    name: "PGVector",
+    description: [
+      "Your vectors and document text are stored on your PostgreSQL instance",
+      "Access to your instance is managed by you",
+    ],
+    logo: PGVectorLogo,
+  },
   chroma: {
     name: "Chroma",
     description: [
       "Your vectors and document text are stored on your Chroma instance",
       "Access to your instance is managed by you",
+    ],
+    logo: ChromaLogo,
+  },
+  chromacloud: {
+    name: "Chroma Cloud",
+    description: [
+      "Your vectors and document text are stored on Chroma's cloud service",
+      "Access to your data is managed by Chroma",
     ],
     logo: ChromaLogo,
   },
@@ -406,11 +446,15 @@ export const FALLBACKS = {
 };
 
 export default function DataHandling({ setHeader, setForwardBtn, setBackBtn }) {
+  const { t } = useTranslation();
   const [llmChoice, setLLMChoice] = useState("openai");
   const [loading, setLoading] = useState(true);
   const [vectorDb, setVectorDb] = useState("pinecone");
   const [embeddingEngine, setEmbeddingEngine] = useState("openai");
   const navigate = useNavigate();
+
+  const TITLE = t("onboarding.data.title");
+  const DESCRIPTION = t("onboarding.data.description");
 
   useEffect(() => {
     setHeader({ title: TITLE, description: DESCRIPTION });
@@ -515,7 +559,7 @@ export default function DataHandling({ setHeader, setForwardBtn, setBackBtn }) {
         </div>
       </div>
       <p className="text-theme-text-secondary text-sm font-medium py-1">
-        These settings can be reconfigured at any time in the settings.
+        {t("onboarding.data.settingsHint")}
       </p>
     </div>
   );

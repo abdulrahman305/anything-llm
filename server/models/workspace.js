@@ -5,11 +5,31 @@ const { WorkspaceUser } = require("./workspaceUsers");
 const { ROLES } = require("../utils/middleware/multiUserProtected");
 const { v4: uuidv4 } = require("uuid");
 const { User } = require("./user");
+const { PromptHistory } = require("./promptHistory");
 
 function isNullOrNaN(value) {
   if (value === null) return true;
   return isNaN(value);
 }
+
+/**
+ * @typedef {Object} Workspace
+ * @property {number} id - The ID of the workspace
+ * @property {string} name - The name of the workspace
+ * @property {string} slug - The slug of the workspace
+ * @property {string} openAiPrompt - The OpenAI prompt of the workspace
+ * @property {string} openAiTemp - The OpenAI temperature of the workspace
+ * @property {number} openAiHistory - The OpenAI history of the workspace
+ * @property {number} similarityThreshold - The similarity threshold of the workspace
+ * @property {string} chatProvider - The chat provider of the workspace
+ * @property {string} chatModel - The chat model of the workspace
+ * @property {number} topN - The top N of the workspace
+ * @property {string} chatMode - The chat mode of the workspace
+ * @property {string} agentProvider - The agent provider of the workspace
+ * @property {string} agentModel - The agent model of the workspace
+ * @property {string} queryRefusalResponse - The query refusal response of the workspace
+ * @property {string} vectorSearchMode - The vector search mode of the workspace
+ */
 
 const Workspace = {
   defaultPrompt:
@@ -263,11 +283,51 @@ const Workspace = {
       return {
         ...workspace,
         documents: await Document.forWorkspace(workspace.id),
+        contextWindow: this._getContextWindow(workspace),
+        currentContextTokenCount: await this._getCurrentContextTokenCount(
+          workspace.id
+        ),
       };
     } catch (error) {
       console.error(error.message);
       return null;
     }
+  },
+
+  /**
+   * Get the total token count of all parsed files in a workspace/thread
+   * @param {number} workspaceId - The ID of the workspace
+   * @param {number|null} threadId - Optional thread ID to filter by
+   * @returns {Promise<number>} Total token count of all files
+   * @private
+   */
+  async _getCurrentContextTokenCount(workspaceId, threadId = null) {
+    const { WorkspaceParsedFiles } = require("./workspaceParsedFiles");
+    return await WorkspaceParsedFiles.totalTokenCount({
+      workspaceId: Number(workspaceId),
+      threadId: threadId ? Number(threadId) : null,
+    });
+  },
+
+  /**
+   * Get the context window size for a workspace based on its provider and model settings.
+   * If the workspace has no provider/model set, falls back to system defaults.
+   * @param {Workspace} workspace - The workspace to get context window for
+   * @returns {number|null} The context window size in tokens (defaults to null if no provider/model found)
+   * @private
+   */
+  _getContextWindow: function (workspace) {
+    const {
+      getLLMProviderClass,
+      getBaseLLMProviderModel,
+    } = require("../utils/helpers");
+    const provider = workspace.chatProvider || process.env.LLM_PROVIDER || null;
+    const LLMProvider = getLLMProviderClass({ provider });
+    const model =
+      workspace.chatModel || getBaseLLMProviderModel({ provider }) || null;
+
+    if (!provider || !model) return null;
+    return LLMProvider?.promptWindowLimit?.(model) || null;
   },
 
   get: async function (clause = {}) {
@@ -279,7 +339,14 @@ const Workspace = {
         },
       });
 
-      return workspace || null;
+      if (!workspace) return null;
+      return {
+        ...workspace,
+        contextWindow: this._getContextWindow(workspace),
+        currentContextTokenCount: await this._getCurrentContextTokenCount(
+          workspace.id
+        ),
+      };
     } catch (error) {
       console.error(error.message);
       return null;
@@ -416,15 +483,31 @@ const Workspace = {
     }
   },
 
-  // We are only tracking this change to determine the need to a prompt library or
-  // prompt assistant feature. If this is something you would like to see - tell us on GitHub!
-  _trackWorkspacePromptChange: async function (prevData, newData, user) {
+  /**
+   * We are tracking this change to determine the need to a prompt library or
+   * prompt assistant feature. If this is something you would like to see - tell us on GitHub!
+   * We now track the prompt change in the PromptHistory model.
+   * which is a sub-model of the Workspace model.
+   * @param {Workspace} prevData - The previous data of the workspace.
+   * @param {Workspace} newData - The new data of the workspace.
+   * @param {{id: number, role: string}|null} user - The user who made the change.
+   * @returns {Promise<void>}
+   */
+  _trackWorkspacePromptChange: async function (prevData, newData, user = null) {
+    if (
+      !!newData?.openAiPrompt && // new prompt is set
+      !!prevData?.openAiPrompt && // previous prompt was not null (default)
+      prevData?.openAiPrompt !== this.defaultPrompt && // previous prompt was not default
+      newData?.openAiPrompt !== prevData?.openAiPrompt // previous and new prompt are not the same
+    )
+      await PromptHistory.handlePromptChange(prevData, user); // log the change to the prompt history
+
     const { Telemetry } = require("./telemetry");
     const { EventLogs } = require("./eventLogs");
     if (
-      !newData?.openAiPrompt ||
-      newData?.openAiPrompt === this.defaultPrompt ||
-      newData?.openAiPrompt === prevData?.openAiPrompt
+      !newData?.openAiPrompt || // no prompt change
+      newData?.openAiPrompt === this.defaultPrompt || // new prompt is default prompt
+      newData?.openAiPrompt === prevData?.openAiPrompt // same prompt
     )
       return;
 
@@ -469,6 +552,53 @@ const Workspace = {
     } catch (error) {
       console.error(error.message);
       return null;
+    }
+  },
+
+  /**
+   * Get the prompt history for a workspace.
+   * @param {Object} options - The options to get prompt history for.
+   * @param {number} options.workspaceId - The ID of the workspace to get prompt history for.
+   * @returns {Promise<Array<{id: number, prompt: string, modifiedAt: Date, modifiedBy: number, user: {id: number, username: string, role: string}}>>} A promise that resolves to an array of prompt history objects.
+   */
+  promptHistory: async function ({ workspaceId }) {
+    try {
+      const results = await PromptHistory.forWorkspace(workspaceId);
+      return results;
+    } catch (error) {
+      console.error(error.message);
+      return [];
+    }
+  },
+
+  /**
+   * Delete the prompt history for a workspace.
+   * @param {Object} options - The options to delete the prompt history for.
+   * @param {number} options.workspaceId - The ID of the workspace to delete prompt history for.
+   * @returns {Promise<boolean>} A promise that resolves to a boolean indicating the success of the operation.
+   */
+  deleteAllPromptHistory: async function ({ workspaceId }) {
+    try {
+      return await PromptHistory.delete({ workspaceId });
+    } catch (error) {
+      console.error(error.message);
+      return false;
+    }
+  },
+
+  /**
+   * Delete the prompt history for a workspace.
+   * @param {Object} options - The options to delete the prompt history for.
+   * @param {number} options.workspaceId - The ID of the workspace to delete prompt history for.
+   * @param {number} options.id - The ID of the prompt history to delete.
+   * @returns {Promise<boolean>} A promise that resolves to a boolean indicating the success of the operation.
+   */
+  deletePromptHistory: async function ({ workspaceId, id }) {
+    try {
+      return await PromptHistory.delete({ id, workspaceId });
+    } catch (error) {
+      console.error(error.message);
+      return false;
     }
   },
 };
