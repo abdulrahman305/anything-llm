@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "@langchain/community": "^0.2.23",
+    "@xenova/transformers": "^2.11.0",
+    "bcrypt": "^6.0.0",
     "@xenova/transformers": "^2.14.0",
     "bcrypt": "^5.1.0",
     "body-parser": "^1.20.2",
@@ -34,6 +36,8 @@
     "moment": "^2.29.4",
     "node-html-parser": "^6.1.13",
     "node-xlsx": "^0.24.0",
+    "officeparser": "^5.0.0",
+    "openai": "4.38.5",
     "officeparser": "^4.0.5",
     "openai": "4.95.1",
     "pdf-parse": "^1.1.1",
