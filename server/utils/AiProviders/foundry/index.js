@@ -1,101 +1,49 @@
 const { NativeEmbedder } = require("../../EmbeddingEngines/native");
 const {
+  LLMPerformanceMonitor,
+} = require("../../helpers/chat/LLMPerformanceMonitor");
+const {
   handleDefaultStreamResponseV2,
   formatChatHistory,
 } = require("../../helpers/chat/responses");
-const {
-  LLMPerformanceMonitor,
-} = require("../../helpers/chat/LLMPerformanceMonitor");
 const { OpenAI: OpenAIApi } = require("openai");
 
-//  hybrid of openAi LLM chat completion for LMStudio
-class LMStudioLLM {
-  /** @see LMStudioLLM.cacheContextWindows */
+class FoundryLLM {
+  /** @see FoundryLLM.cacheContextWindows */
   static modelContextWindows = {};
 
   constructor(embedder = null, modelPreference = null) {
-    if (!process.env.LMSTUDIO_BASE_PATH)
-      throw new Error("No LMStudio API Base Path was set.");
+    if (!process.env.FOUNDRY_BASE_PATH)
+      throw new Error("No Foundry Base Path was set.");
 
-    this.lmstudio = new OpenAIApi({
-      baseURL: parseLMStudioBasePath(process.env.LMSTUDIO_BASE_PATH), // here is the URL to your LMStudio instance
+    this.className = "FoundryLLM";
+    this.model = modelPreference || process.env.FOUNDRY_MODEL_PREF;
+    this.openai = new OpenAIApi({
+      baseURL: parseFoundryBasePath(process.env.FOUNDRY_BASE_PATH),
       apiKey: null,
     });
 
-    // Prior to LMStudio 0.2.17 the `model` param was not required and you could pass anything
-    // into that field and it would work. On 0.2.17 LMStudio introduced multi-model chat
-    // which now has a bug that reports the server model id as "Loaded from Chat UI"
-    // and any other value will crash inferencing. So until this is patched we will
-    // try to fetch the `/models` and have the user set it, or just fallback to "Loaded from Chat UI"
-    // which will not impact users with <v0.2.17 and should work as well once the bug is fixed.
-    this.model =
-      modelPreference ||
-      process.env.LMSTUDIO_MODEL_PREF ||
-      "Loaded from Chat UI";
-
     this.embedder = embedder ?? new NativeEmbedder();
     this.defaultTemp = 0.7;
-
-    LMStudioLLM.cacheContextWindows(true).then(() => {
+    FoundryLLM.cacheContextWindows(true).then(() => {
       this.limits = {
         history: this.promptWindowLimit() * 0.15,
         system: this.promptWindowLimit() * 0.15,
         user: this.promptWindowLimit() * 0.7,
       };
+
       this.#log(
-        `initialized with\nmodel: ${this.model}\nn_ctx: ${this.promptWindowLimit()}`
+        `Loaded with model: ${this.model} with context window: ${this.promptWindowLimit()}`
       );
     });
   }
 
-  #log(text, ...args) {
-    console.log(`\x1b[32m[LMStudio]\x1b[0m ${text}`, ...args);
-  }
-
   static #slog(text, ...args) {
-    console.log(`\x1b[32m[LMStudio]\x1b[0m ${text}`, ...args);
+    console.log(`\x1b[36m[FoundryLLM]\x1b[0m ${text}`, ...args);
   }
 
-  /**
-   * Cache the context windows for the LMStudio models.
-   * This is done once and then cached for the lifetime of the server. This is absolutely necessary to ensure that the context windows are correct.
-   *
-   * This is a convenience to ensure that the context windows are correct and that the user
-   * does not have to manually set the context window for each model.
-   * @param {boolean} force - Force the cache to be refreshed.
-   * @returns {Promise<void>} - A promise that resolves when the cache is refreshed.
-   */
-  static async cacheContextWindows(force = false) {
-    try {
-      // Skip if we already have cached context windows and we're not forcing a refresh
-      if (Object.keys(LMStudioLLM.modelContextWindows).length > 0 && !force)
-        return;
-
-      const endpoint = new URL(process.env.LMSTUDIO_BASE_PATH);
-      endpoint.pathname = "/api/v0/models";
-      await fetch(endpoint.toString())
-        .then((res) => {
-          if (!res.ok)
-            throw new Error(`LMStudio:cacheContextWindows - ${res.statusText}`);
-          return res.json();
-        })
-        .then(({ data: models }) => {
-          models.forEach((model) => {
-            if (model.type === "embeddings") return;
-            LMStudioLLM.modelContextWindows[model.id] =
-              model.max_context_length;
-          });
-        })
-        .catch((e) => {
-          LMStudioLLM.#slog(`Error caching context windows`, e);
-          return;
-        });
-
-      LMStudioLLM.#slog(`Context windows cached for all models!`);
-    } catch (e) {
-      LMStudioLLM.#slog(`Error caching context windows`, e);
-      return;
-    }
+  #log(text, ...args) {
+    console.log(`\x1b[36m[${this.className}]\x1b[0m ${text}`, ...args);
   }
 
   #appendContext(contextTexts = []) {
@@ -114,17 +62,70 @@ class LMStudioLLM {
     return "streamGetChatCompletion" in this;
   }
 
+  /**
+   * Cache the context windows for the Foundry models.
+   * This is done once and then cached for the lifetime of the server. This is absolutely necessary to ensure that the context windows are correct.
+   * Foundry Local has a weird behavior that when max_completion_tokens is unset it will only allow the output to be 1024 tokens.
+   *
+   * If you pass in too large of a max_completion_tokens, it will throw an error.
+   * If you pass in too little of a max_completion_tokens, you will get stubbed outputs before you reach a real "stop" token.
+   * So we need to cache the context windows and use them for the lifetime of the server.
+   * @param {boolean} force
+   * @returns
+   */
+  static async cacheContextWindows(force = false) {
+    try {
+      // Skip if we already have cached context windows and we're not forcing a refresh
+      if (Object.keys(FoundryLLM.modelContextWindows).length > 0 && !force)
+        return;
+
+      const openai = new OpenAIApi({
+        baseURL: parseFoundryBasePath(process.env.FOUNDRY_BASE_PATH),
+        apiKey: null,
+      });
+      (await openai.models.list().then((result) => result.data)).map(
+        (model) => {
+          const contextWindow =
+            Number(model.maxInputTokens) + Number(model.maxOutputTokens);
+          FoundryLLM.modelContextWindows[model.id] = contextWindow;
+        }
+      );
+      FoundryLLM.#slog(`Context windows cached for all models!`);
+    } catch (e) {
+      FoundryLLM.#slog(`Error caching context windows: ${e.message}`);
+      return;
+    }
+  }
+
+  /**
+   * Unload a model from the Foundry engine forcefully
+   * If the model is invalid, we just ignore the error. This is a util
+   * simply to have the foundry engine drop the resources for the model.
+   *
+   * @param {string} modelName
+   * @returns {Promise<boolean>}
+   */
+  static async unloadModelFromEngine(modelName) {
+    const basePath = parseFoundryBasePath(process.env.FOUNDRY_BASE_PATH);
+    const baseUrl = new URL(basePath);
+    baseUrl.pathname = `/openai/unload/${modelName}`;
+    baseUrl.searchParams.set("force", "true");
+    return await fetch(baseUrl.toString())
+      .then((res) => res.json())
+      .catch(() => null);
+  }
+
   static promptWindowLimit(modelName) {
     let userDefinedLimit = null;
     const systemDefinedLimit =
       Number(this.modelContextWindows[modelName]) || 4096;
 
     if (
-      process.env.LMSTUDIO_MODEL_TOKEN_LIMIT &&
-      !isNaN(Number(process.env.LMSTUDIO_MODEL_TOKEN_LIMIT)) &&
-      Number(process.env.LMSTUDIO_MODEL_TOKEN_LIMIT) > 0
+      process.env.FOUNDRY_MODEL_TOKEN_LIMIT &&
+      !isNaN(Number(process.env.FOUNDRY_MODEL_TOKEN_LIMIT)) &&
+      Number(process.env.FOUNDRY_MODEL_TOKEN_LIMIT) > 0
     )
-      userDefinedLimit = Number(process.env.LMSTUDIO_MODEL_TOKEN_LIMIT);
+      userDefinedLimit = Number(process.env.FOUNDRY_MODEL_TOKEN_LIMIT);
 
     // The user defined limit is always higher priority than the context window limit, but it cannot be higher than the context window limit
     // so we return the minimum of the two, if there is no user defined limit, we return the system defined limit as-is.
@@ -138,8 +139,6 @@ class LMStudioLLM {
   }
 
   async isValidChatCompletionModel(_ = "") {
-    // LMStudio may be anything. The user must do it correctly.
-    // See comment about this.model declaration in constructor
     return true;
   }
 
@@ -195,15 +194,20 @@ class LMStudioLLM {
   async getChatCompletion(messages = null, { temperature = 0.7 }) {
     if (!this.model)
       throw new Error(
-        `LMStudio chat: ${this.model} is not valid or defined model for chat completion!`
+        `Foundry chat: ${this.model} is not valid or defined model for chat completion!`
       );
 
     const result = await LLMPerformanceMonitor.measureAsyncFunction(
-      this.lmstudio.chat.completions.create({
-        model: this.model,
-        messages,
-        temperature,
-      })
+      this.openai.chat.completions
+        .create({
+          model: this.model,
+          messages,
+          temperature,
+          max_completion_tokens: this.promptWindowLimit(),
+        })
+        .catch((e) => {
+          throw new Error(e.message);
+        })
     );
 
     if (
@@ -215,10 +219,10 @@ class LMStudioLLM {
     return {
       textResponse: result.output.choices[0].message.content,
       metrics: {
-        prompt_tokens: result.output.usage?.prompt_tokens || 0,
-        completion_tokens: result.output.usage?.completion_tokens || 0,
-        total_tokens: result.output.usage?.total_tokens || 0,
-        outputTps: result.output.usage?.completion_tokens / result.duration,
+        prompt_tokens: result.output.usage.prompt_tokens || 0,
+        completion_tokens: result.output.usage.completion_tokens || 0,
+        total_tokens: result.output.usage.total_tokens || 0,
+        outputTps: result.output.usage.completion_tokens / result.duration,
         duration: result.duration,
       },
     };
@@ -227,15 +231,16 @@ class LMStudioLLM {
   async streamGetChatCompletion(messages = null, { temperature = 0.7 }) {
     if (!this.model)
       throw new Error(
-        `LMStudio chat: ${this.model} is not valid or defined model for chat completion!`
+        `Foundry chat: ${this.model} is not valid or defined model for chat completion!`
       );
 
     const measuredStreamRequest = await LLMPerformanceMonitor.measureStream(
-      this.lmstudio.chat.completions.create({
+      this.openai.chat.completions.create({
         model: this.model,
         stream: true,
         messages,
         temperature,
+        max_completion_tokens: this.promptWindowLimit(),
       }),
       messages
     );
@@ -262,12 +267,12 @@ class LMStudioLLM {
 }
 
 /**
- * Parse the base path for the LMStudio API. Since the base path must end in /v1 and cannot have a trailing slash,
+ * Parse the base path for the Foundry container API. Since the base path must end in /v1 and cannot have a trailing slash,
  * and the user can possibly set it to anything and likely incorrectly due to pasting behaviors, we need to ensure it is in the correct format.
  * @param {string} basePath
  * @returns {string}
  */
-function parseLMStudioBasePath(providedBasePath = "") {
+function parseFoundryBasePath(providedBasePath = "") {
   try {
     const baseURL = new URL(providedBasePath);
     const basePath = `${baseURL.origin}/v1`;
@@ -278,6 +283,6 @@ function parseLMStudioBasePath(providedBasePath = "") {
 }
 
 module.exports = {
-  LMStudioLLM,
-  parseLMStudioBasePath,
+  FoundryLLM,
+  parseFoundryBasePath,
 };
